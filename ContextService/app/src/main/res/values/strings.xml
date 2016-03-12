@@ -7,7 +7,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="notification_title">Tracking is on</string>
-    <string name="notification_text">Learn more about software activities</string>
+    <string name="notification_text">Learn more about its activities</string>
 
     <string name="floating_action_button">We appreciate your privacy concerns :-)</string>
     <string name="title_activity_maps">Map</string>

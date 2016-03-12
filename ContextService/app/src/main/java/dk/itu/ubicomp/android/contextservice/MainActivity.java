@@ -55,24 +55,29 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this, ContextService.class);
         startService(intent);
 
-        preloadGoogleMaps();
-
-        Intent myIntent = getIntent();
-        int startView = myIntent.getIntExtra("displayfragmentview", R.id.nav_my_beacons);
+        int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_my_beacons);
         DisplayFragmentView(startView);
+        Log.d("ACTIVITY", "RESUMED!");
     }
 
-    public void preloadGoogleMaps()
-    {
-        /*SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.preloadmap));
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
 
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                Log.d("PRELOADING", "onMapReady");
-            }
-        });*/
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("displayfragmentview"))
+        {
+            int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_my_beacons);
+            DisplayFragmentView(startView);
+            Log.d("ACTIVITY", "RESUMED!");
+        }
     }
 
     @Override
