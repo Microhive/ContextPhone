@@ -1,14 +1,12 @@
 package dk.itu.ubicomp.android.contextservice;
 
+import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,14 +14,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.IndoorBuilding;
-import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMap.OnIndoorStateChangeListener {
 
@@ -32,6 +33,7 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
     }
 
     private GoogleMap mMap;
+    Map<Integer, List<Marker>> mFloorMap = new HashMap<Integer, List<Marker>>();
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -46,7 +48,8 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
         mMap = googleMap;
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        List<Marker> markers = PrepareMarkers();
+
+        List<Marker> markers = ShowFloorMarkers(0);
 
         for (Marker marker : markers) {
             builder.include(marker.getPosition());
@@ -62,14 +65,35 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
         mMap.setOnIndoorStateChangeListener(this);
     }
 
-    public List<Marker> PrepareMarkers()
+    private List<Marker> ShowFloorMarkers(int floor)
     {
-        List<Marker> markers = new ArrayList<Marker>();
-        markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659629, 12.590958)).title("Room1")));
-        markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.660024, 12.591505)).title("Room2")));
-        markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.660045, 12.590923)).title("Room3")));
-        markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659316, 12.590700)).title("Room4")));
-        markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659139, 12.591215)).title("Room5")));
+        ArrayList<Marker> markers = new ArrayList<Marker>();
+        switch (floor) {
+            case 0:
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659821, 12.590897)).title("Cafe Analog")));
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659405, 12.590696)).title("ScrollBar")));
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659213, 12.591240)).title("Eatit")));
+                break;
+            case 1:
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.660007, 12.590953)).title("Læsesal")));
+                break;
+            case 2:
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.660017, 12.591497)).title("IT Afdeling")));
+                break;
+            case 3:
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659291, 12.591222)).title("Studievejledning")));
+                break;
+            case 4:
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659751, 12.591445)).title("Auditorium 4")));
+                break;
+            case 5:
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659582, 12.591392)).title("Pit Lab")));
+                break;
+        }
+
+        //TODO: Thinking maybe it should actually fade the surrounding areas around ITU
+        // PolygonOptions options = new PolygonOptions();
+        // PolygonOptions addHole
 
         return markers;
     }
@@ -81,7 +105,9 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
 
     @Override
     public void onIndoorLevelActivated(IndoorBuilding indoorBuilding) {
-        int floor = indoorBuilding.getActiveLevelIndex();
-        Log.d("FLOOR", Integer.toString(-(floor - 5), -404));
+        int floor = -(indoorBuilding.getActiveLevelIndex() - 5);
+        Log.d("FLOOR", Integer.toString(floor, -404));
+        mMap.clear();
+        ShowFloorMarkers(floor);
     }
 }
