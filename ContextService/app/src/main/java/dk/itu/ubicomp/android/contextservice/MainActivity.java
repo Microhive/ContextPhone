@@ -1,15 +1,12 @@
 package dk.itu.ubicomp.android.contextservice;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,12 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,11 +109,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         DisplayFragmentView(item.getItemId());
         return true;
-/*
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-*/
-//        return true;
     }
 
     public void DisplayFragmentView(int viewId) {
@@ -130,20 +117,26 @@ public class MainActivity extends AppCompatActivity
         String title = getString(R.string.app_name);
 
         switch (viewId) {
-            case R.id.nav_my_beacons:
-                fragment = new MyBeacons();
-                title  = "My Beacons";
 
-                break;
             case R.id.nav_my_location:
                 fragment = new MyLocation();
-                title = "My Location";
+                title = getString(R.string.nav_title_my_location);
                 break;
 
             case R.id.nav_privacy:
                 fragment = new Privacy();
-                title = "Privacy";
+                title = getString(R.string.nav_title_privacy);
                 break;
+
+            /*case R.id.nav_my_beacons:
+                fragment = new MyBeacons();
+                title = getString(R.string.nav_title_my_beacons);
+                break;*/
+
+            /*case R.id.nav_nearby_beacons:
+                fragment = new NearbyBeacons();
+                title = getString(R.string.nav_title_nearby_beacons);
+                break;*/
 
         }
 

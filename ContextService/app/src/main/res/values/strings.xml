@@ -11,4 +11,10 @@
 
     <string name="floating_action_button">We appreciate your privacy concerns :-)</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="nav_my_beacons">My Beacons</string>
+    <string name="nav_title_my_location">My Location</string>
+    <string name="nav_title_privacy">Privacy</string>
+    <string name="nav_title_my_beacons">My Beacons</string>
+    <string name="nav_title_nearby_beacons">Nearby Beacons</string>
 </resources>

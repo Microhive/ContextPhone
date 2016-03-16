@@ -74,7 +74,7 @@ public class ContextService extends Service implements SensorEventListener {
     }
 
     protected void PeriodicTask() {
-//        Toast.makeText(getApplicationContext(), "Tracking", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Tracking", Toast.LENGTH_SHORT).show();
     }
 
     @Override

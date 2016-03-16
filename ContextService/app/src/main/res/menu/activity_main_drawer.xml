@@ -2,10 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_my_beacons"
-            android:icon="@drawable/ic_menu_my_beacons"
-            android:title="My Beacons"/>
+
         <item
             android:id="@+id/nav_my_location"
             android:icon="@drawable/ic_menu_gallery"
@@ -15,6 +12,19 @@
             android:icon="@drawable/ic_menu_privacy"
             android:title="Privacy"/>
     </group>
+
+    <item android:title="Beacons">
+        <menu>
+            <item
+                android:id="@+id/nav_my_beacons"
+                android:icon="@drawable/ic_menu_share"
+                android:title="@string/nav_title_my_beacons"/>
+            <item
+                android:id="@+id/nav_nearby_beacons"
+                android:icon="@drawable/ic_menu_send"
+                android:title="@string/nav_title_nearby_beacons"/>
+        </menu>
+    </item>
 
     <item android:title="Communicate">
         <menu>
@@ -28,5 +38,4 @@
                 android:title="Send"/>
         </menu>
     </item>
-
 </menu>
