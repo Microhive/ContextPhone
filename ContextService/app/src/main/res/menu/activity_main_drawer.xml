@@ -9,22 +9,18 @@
             android:title="My Location"/>
         <item
             android:id="@+id/nav_privacy"
-            android:icon="@drawable/ic_menu_privacy"
+            android:icon="@drawable/ic_menu_camera"
             android:title="Privacy"/>
-    </group>
+        <item
+            android:id="@+id/nav_my_beacons"
+            android:icon="@drawable/ic_menu_share"
+            android:title="@string/nav_title_my_beacons"/>
+        <item
+            android:id="@+id/nav_nearby_beacons"
+            android:icon="@drawable/ic_menu_send"
+            android:title="@string/nav_title_nearby_beacons"/>
 
-    <item android:title="Beacons">
-        <menu>
-            <item
-                android:id="@+id/nav_my_beacons"
-                android:icon="@drawable/ic_menu_share"
-                android:title="@string/nav_title_my_beacons"/>
-            <item
-                android:id="@+id/nav_nearby_beacons"
-                android:icon="@drawable/ic_menu_send"
-                android:title="@string/nav_title_nearby_beacons"/>
-        </menu>
-    </item>
+    </group>
 
     <item android:title="Communicate">
         <menu>

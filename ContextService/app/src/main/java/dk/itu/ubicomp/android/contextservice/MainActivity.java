@@ -133,10 +133,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 title = getString(R.string.nav_title_my_beacons);
                 break;*/
 
-            /*case R.id.nav_nearby_beacons:
+            case R.id.nav_nearby_beacons:
                 fragment = new NearbyBeacons();
                 title = getString(R.string.nav_title_nearby_beacons);
-                break;*/
+                break;
 
         }
 
