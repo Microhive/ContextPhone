@@ -87,28 +87,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
             @Override
             public void onBeaconsDiscovered(Region region, List<Beacon> list) {
-                for (Beacon beacon : list) {
-                    if (!BeaconDb.getInstance().getmMapOfBeacons().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
-                        BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon);
-                    }
-                }
 
+                // Request Location Permission
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
-                currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if (currentLocation != null) {
                     Log.d("LOCATION", currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
                 }
-                Log.d("Beacons that exist!", Integer.toString(BeaconDb.getInstance().getmMapOfBeacons().size(), 0));
+
+                for (Beacon beacon : list) {
+                    if (!BeaconDb.getInstance().getmMapOfBeaconData().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
+                        BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon, currentLocation);
+                    }
+                }
+
+                Log.d("Beacons that exist!", Integer.toString(BeaconDb.getInstance().getmMapOfBeaconData().size(), 0));
             }
         });
     }

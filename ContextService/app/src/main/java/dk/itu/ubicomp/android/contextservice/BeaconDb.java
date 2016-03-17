@@ -4,6 +4,8 @@ package dk.itu.ubicomp.android.contextservice;
  * Created by Eiler on 17/03/2016.
  */
 
+import android.location.Location;
+
 import com.estimote.sdk.Beacon;
 
 import java.util.HashMap;
@@ -19,23 +21,23 @@ public class BeaconDb {
     private static BeaconDb mInstance = null;
     private String mString;
 
-    public void AddItem(String s, Beacon b)
+    public void AddItem(String s, Beacon b, Location l)
     {
         if (!mMapOfBeacons.containsValue(s))
         {
-            mMapOfBeacons.put(s, b);
+            mMapOfBeacons.put(s, new BeaconData(b, l));
         }
     }
 
-    public Map<String, Beacon> getmMapOfBeacons() {
+    public Map<String, BeaconData> getmMapOfBeaconData() {
         return mMapOfBeacons;
     }
 
-    private Map<String, Beacon> mMapOfBeacons;
+    private Map<String, BeaconData> mMapOfBeacons;
 
     private BeaconDb(){
         mString = "Hello";
-        mMapOfBeacons = new HashMap<String, Beacon>();
+        mMapOfBeacons = new HashMap<String, BeaconData>();
     }
 
     public static BeaconDb getInstance(){
@@ -52,5 +54,16 @@ public class BeaconDb {
 
     public void setString(String value){
         mString = value;
+    }
+
+
+    class BeaconData {
+        public Beacon mBeacon;
+        public Location mLocation;
+
+        BeaconData(Beacon beacon, Location location) {
+            Beacon mBeacon = beacon;
+            Location mLocation = location;
+        }
     }
 }
