@@ -4,10 +4,10 @@
              android:layout_height="match_parent"
              tools:context="dk.itu.ubicomp.android.contextservice.NearbyBeacons">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <fragment
+        android:id="@+id/fragment1"
+        android:name="dk.itu.ubicomp.android.contextservice.MyListFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"/>
+        android:layout_height="match_parent" />
 
 </FrameLayout>
