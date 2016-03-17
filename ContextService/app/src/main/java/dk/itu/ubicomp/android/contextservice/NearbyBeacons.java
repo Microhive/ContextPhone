@@ -9,21 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.estimote.sdk.BeaconManager;
+import com.estimote.sdk.Region;
+
+import java.util.UUID;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class NearbyBeacons extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
-
     public NearbyBeacons() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

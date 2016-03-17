@@ -17,7 +17,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.estimote.sdk.Beacon;
+import com.estimote.sdk.BeaconManager;
+import com.estimote.sdk.Region;
+import com.estimote.sdk.SystemRequirementsChecker;
+
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static BeaconManager beaconManager;
+    public static Region region;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_my_beacons);
         DisplayFragmentView(startView);
         Log.d("ACTIVITY", "RESUMED!");
+
+        beaconManager = new BeaconManager(this);
+        region = new Region("rid", null, null, null);
+        // add this below:
+        beaconManager.setRangingListener(new BeaconManager.RangingListener() {
+            @Override
+            public void onBeaconsDiscovered(Region region, List<Beacon> list) {
+                for (Beacon beacon : list) {
+                    if (!BeaconDb.getInstance().getmMapOfBeacons().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
+                        Log.d("BEACON FOUND!", beacon.getMajor() + ", " + beacon.getMinor());
+                        BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon);
+                    }
+                }
+
+                /*NearbyBeacons fragment = (NearbyBeacons) getSupportFragmentManager().findFragmentById(R.id.fragment1);
+                fragment..<specific_function_name>();*/
+
+                Log.d("Beacons that exist!", Integer.toString(BeaconDb.getInstance().getmMapOfBeacons().size(), 0));
+            }
+        });
     }
 
     @Override
@@ -70,6 +100,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             DisplayFragmentView(startView);
             Log.d("ACTIVITY", "RESUMED!");
         }
+
+        SystemRequirementsChecker.checkWithDefaultDialogs(this);
+
+        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+            @Override
+            public void onServiceReady() {
+                beaconManager.startRanging(region);
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        beaconManager.stopRanging(region);
+        super.onPause();
     }
 
     @Override
