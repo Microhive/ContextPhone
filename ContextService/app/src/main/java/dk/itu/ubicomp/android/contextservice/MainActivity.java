@@ -1,9 +1,16 @@
 package dk.itu.ubicomp.android.contextservice;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -28,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static BeaconManager beaconManager;
     public static Region region;
+    private LocationListener locationListener;
+    private LocationManager locationManager;
+    private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,29 +67,83 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent(this, ContextService.class);
         startService(intent);
 
-        int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_my_beacons);
+        int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_privacy);
         DisplayFragmentView(startView);
         Log.d("ACTIVITY", "RESUMED!");
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
+            return;
+        }
+
+        locationListener = new MyLocationListener();
+        locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+
         beaconManager = new BeaconManager(this);
         region = new Region("rid", null, null, null);
+        LocationSetup();
+
         // add this below:
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
             @Override
             public void onBeaconsDiscovered(Region region, List<Beacon> list) {
                 for (Beacon beacon : list) {
                     if (!BeaconDb.getInstance().getmMapOfBeacons().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
-                        Log.d("BEACON FOUND!", beacon.getMajor() + ", " + beacon.getMinor());
                         BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon);
                     }
                 }
 
-                /*NearbyBeacons fragment = (NearbyBeacons) getSupportFragmentManager().findFragmentById(R.id.fragment1);
-                fragment..<specific_function_name>();*/
-
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (currentLocation != null) {
+                    Log.d("LOCATION", currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
+                }
                 Log.d("Beacons that exist!", Integer.toString(BeaconDb.getInstance().getmMapOfBeacons().size(), 0));
             }
         });
+    }
+
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private void LocationSetup() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
     }
 
     @Override
@@ -96,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("displayfragmentview"))
         {
-            int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_my_beacons);
+            int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_privacy);
             DisplayFragmentView(startView);
             Log.d("ACTIVITY", "RESUMED!");
         }
@@ -173,11 +237,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 title = getString(R.string.nav_title_privacy);
                 break;
 
-            /*case R.id.nav_my_beacons:
-                fragment = new MyBeacons();
-                title = getString(R.string.nav_title_my_beacons);
-                break;*/
-
             case R.id.nav_nearby_beacons:
                 fragment = new NearbyBeacons();
                 title = getString(R.string.nav_title_nearby_beacons);
@@ -198,5 +257,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+    }
+
+    private final class MyLocationListener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location locFromGps) {
+            String longitude = "Longitude: " + currentLocation.getLongitude();
+            Log.v("POSITION X: ", longitude);
+            String latitude = "Latitude: " + currentLocation.getLatitude();
+            Log.v("POSITION Y: ", latitude);
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            // called when the GPS provider is turned off (user turning off the GPS on the phone)
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            // called when the GPS provider is turned on (user turning on the GPS on the phone)
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // called when the status of the GPS provider changes
+        }
     }
 }
