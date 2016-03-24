@@ -30,7 +30,7 @@ public class ContextService extends Service implements SensorEventListener {
     private Sensor mLocation;
     private Sensor mBarometer;
 
-    public static final long NOTIFY_INTERVAL = 10 * 1000; // 10 seconds
+    public static final long NOTIFY_INTERVAL = 10 * 60000; // 60 seconds
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
 

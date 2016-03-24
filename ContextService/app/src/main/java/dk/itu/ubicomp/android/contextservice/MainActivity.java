@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -93,14 +94,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
                     return;
                 }
-                Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+//              Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if (currentLocation != null) {
                     Log.d("LOCATION", currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
-                }
-
-                for (Beacon beacon : list) {
-                    if (!BeaconDb.getInstance().getmMapOfBeaconData().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
-                        BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon, currentLocation);
+                    for (Beacon beacon : list) {
+                        if (!BeaconDb.getInstance().getmMapOfBeaconData().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
+                            BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon, currentLocation);
+                        }
                     }
                 }
 
@@ -238,6 +239,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 title = getString(R.string.nav_title_nearby_beacons);
                 break;
 
+            case R.id.nav_send:
+                Toast.makeText(getApplicationContext(), "SENDING!", Toast.LENGTH_SHORT).show();
+                SendBeacons();
+                break;
+
         }
 
         if (fragment != null) {
@@ -259,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void onLocationChanged(Location locFromGps) {
+            currentLocation = locFromGps;
             String longitude = "Longitude: " + currentLocation.getLongitude();
             Log.v("POSITION X: ", longitude);
             String latitude = "Latitude: " + currentLocation.getLatitude();
@@ -279,5 +286,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onStatusChanged(String provider, int status, Bundle extras) {
             // called when the status of the GPS provider changes
         }
+    }
+
+    private void SendBeacons()
+    {
+
     }
 }
