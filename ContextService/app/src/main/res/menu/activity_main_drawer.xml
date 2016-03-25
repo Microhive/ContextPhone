@@ -21,13 +21,13 @@
     <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_send_sensor"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share"/>
+                android:title="Send Sensors"/>
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_send_beacons"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send"/>
+                android:title="Send Beacons"/>
         </menu>
     </item>
 </menu>

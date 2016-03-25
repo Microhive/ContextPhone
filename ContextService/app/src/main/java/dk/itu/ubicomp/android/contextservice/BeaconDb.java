@@ -62,8 +62,8 @@ public class BeaconDb {
         public Location mLocation;
 
         BeaconData(Beacon beacon, Location location) {
-            Beacon mBeacon = beacon;
-            Location mLocation = location;
+            mBeacon = beacon;
+            mLocation = location;
         }
     }
 }
