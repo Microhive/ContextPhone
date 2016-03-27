@@ -13,33 +13,28 @@ import android.hardware.SensorManager;
 import android.os.*;
 import android.os.Process;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
+import android.util.Log;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * Created by Eiler on 10/03/2016.
  */
-public class ContextService extends Service implements SensorEventListener {
+public class ContextService extends Service {
 
     private SensorManager mSensorManager;
-    private Sensor mOrientation;
-    private Sensor mLocation;
+    private Sensor mRotation;
     private Sensor mBarometer;
+    private String mRotationValue;
+    private String mPressureValue;
 
-    public static final long NOTIFY_INTERVAL = 10 * 60000; // 60 seconds
+    public static final long NOTIFY_INTERVAL = 1000; // 1 seconds
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
 
     @Override
     public void onCreate() {
-        // Start up the thread running the service.  Note that we create a
-        // separate thread because the service normally runs in the process's
-        // main thread, which we don't want to block.  We also make it
-        // background priority so CPU-intensive work will not disrupt our UI.
         HandlerThread thread = new HandlerThread("ServiceStartArguments", Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
@@ -50,14 +45,11 @@ public class ContextService extends Service implements SensorEventListener {
 
     private void startTrackingSensorInfo()
     {
-        // cancel if already existed
         if(mTimer != null) {
             mTimer.cancel();
         } else {
-            // recreate new
             mTimer = new Timer();
         }
-        // schedule task
         mTimer.scheduleAtFixedRate(new RunTaskPeriodically(), 0, NOTIFY_INTERVAL);
     }
 
@@ -74,7 +66,10 @@ public class ContextService extends Service implements SensorEventListener {
     }
 
     protected void PeriodicTask() {
-        Toast.makeText(getApplicationContext(), "Tracking", Toast.LENGTH_SHORT).show();
+//        Log.d("SENSOR VALUES", mLocationValue != null ? mLocationValue : "NULL");
+        Log.d("SENSOR VALUES", mPressureValue != null ? mPressureValue : "NULL");
+        Log.d("SENSOR VALUES", mRotationValue != null ? mRotationValue : "NULL");
+//        Toast.makeText(getApplicationContext(), "Tracking", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -116,21 +111,34 @@ public class ContextService extends Service implements SensorEventListener {
 
     private void setupSensors()
     {
-        /*mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mLocation = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mBarometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mLocation, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mBarometer, SensorManager.SENSOR_DELAY_NORMAL);*/
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+        mBarometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        mSensorManager.registerListener(new RotationListener(), mRotation, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(new PressureListener(), mBarometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    class RotationListener implements SensorEventListener {
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // TODO
+        }
 
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            mRotationValue = Float.toString(event.values[0]);
+        }
     }
 
-    public void onSensorChanged(SensorEvent event) {
+    class PressureListener implements SensorEventListener {
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // TODO
+        }
 
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            mPressureValue = Float.toString(event.values[0]);
+        }
     }
-
 }
