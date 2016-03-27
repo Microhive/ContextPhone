@@ -44,7 +44,7 @@ public class ContextService extends Service {
     private LocationManager locationManager;
     private Location mLocationValue;
 
-    public static final long NOTIFY_INTERVAL = 60000; // 60 seconds
+    public static final long NOTIFY_INTERVAL = 300000; // 60 seconds
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
     private String android_id = null;
