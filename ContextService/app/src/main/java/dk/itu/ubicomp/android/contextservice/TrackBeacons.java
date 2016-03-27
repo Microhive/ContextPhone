@@ -25,11 +25,11 @@ import java.util.UUID;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NearbyBeacons extends Fragment implements OnMapReadyCallback {
+public class TrackBeacons extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
-    public NearbyBeacons() {
+    public TrackBeacons() {
         // Required empty public constructor
     }
 

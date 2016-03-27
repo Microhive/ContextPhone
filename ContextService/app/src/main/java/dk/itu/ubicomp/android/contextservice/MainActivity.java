@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static BeaconManager beaconManager;
     public static Region region;
+    public static Beacon lastSpottedBeacon;
+
     private LocationListener locationListener;
     private LocationManager locationManager;
     private Location currentLocation;
@@ -105,10 +107,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                                 return;
                             }
-//                            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon, currentLocation);
                         }
                     }
+                    if (list.size() > 0)
+                        lastSpottedBeacon = list.get(0);
                 }
 
                 Log.d("Beacons that exist!", Integer.toString(BeaconDb.getInstance().getmMapOfBeaconData().size(), 0));
@@ -129,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
-//                    currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
                 break;
             }

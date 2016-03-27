@@ -1,17 +1,23 @@
 package dk.itu.ubicomp.android.contextservice;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.*;
 import android.os.Process;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -24,10 +30,15 @@ import java.util.TimerTask;
 public class ContextService extends Service {
 
     private SensorManager mSensorManager;
+
     private Sensor mRotation;
     private Sensor mBarometer;
     private String mRotationValue;
     private String mPressureValue;
+
+    private LocationListener locationListener;
+    private LocationManager locationManager;
+    private Location mLocationValue;
 
     public static final long NOTIFY_INTERVAL = 1000; // 1 seconds
     private Handler mHandler = new Handler();
@@ -39,13 +50,13 @@ public class ContextService extends Service {
         thread.start();
 
         setupSensors();
+        SetupLocation();
         showNotification();
         startTrackingSensorInfo();
     }
 
-    private void startTrackingSensorInfo()
-    {
-        if(mTimer != null) {
+    private void startTrackingSensorInfo() {
+        if (mTimer != null) {
             mTimer.cancel();
         } else {
             mTimer = new Timer();
@@ -66,25 +77,37 @@ public class ContextService extends Service {
     }
 
     protected void PeriodicTask() {
-//        Log.d("SENSOR VALUES", mLocationValue != null ? mLocationValue : "NULL");
+        // If permission has yet to be granted, try setup again
+        if (mLocationValue == null) SetupLocation();
+
+        Log.d("SENSOR VALUES", mLocationValue != null ? mLocationValue.getLatitude() + ", " + mLocationValue.getLongitude() : "NULL");
         Log.d("SENSOR VALUES", mPressureValue != null ? mPressureValue : "NULL");
         Log.d("SENSOR VALUES", mRotationValue != null ? mRotationValue : "NULL");
-//        Toast.makeText(getApplicationContext(), "Tracking", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     @Override
     public void onDestroy() {
-
+        Log.e(TAG, "onDestroy");
+        super.onDestroy();
+        if (mLocationManager != null) {
+            for (int i = 0; i < mLocationListeners.length; i++) {
+                try {
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    mLocationManager.removeUpdates(mLocationListeners[i]);
+                } catch (Exception ex) {
+                    Log.i(TAG, "fail to remove location listners, ignore", ex);
+                }
+            }
+        }
     }
 
     private void showNotification(){
@@ -118,10 +141,33 @@ public class ContextService extends Service {
         mSensorManager.registerListener(new PressureListener(), mBarometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    private void SetupLocation()
+    {
+        Log.e(TAG, "onCreate");
+        initializeLocationManager();
+        try {
+            mLocationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+                    mLocationListeners[1]);
+        } catch (java.lang.SecurityException ex) {
+            Log.i(TAG, "fail to request location update, ignore", ex);
+        } catch (IllegalArgumentException ex) {
+            Log.d(TAG, "network provider does not exist, " + ex.getMessage());
+        }
+        try {
+            mLocationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+                    mLocationListeners[0]);
+        } catch (java.lang.SecurityException ex) {
+            Log.i(TAG, "fail to request location update, ignore", ex);
+        } catch (IllegalArgumentException ex) {
+            Log.d(TAG, "gps provider does not exist " + ex.getMessage());
+        }
+    }
+
     class RotationListener implements SensorEventListener {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO
         }
 
         @Override
@@ -133,12 +179,79 @@ public class ContextService extends Service {
     class PressureListener implements SensorEventListener {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO
         }
 
         @Override
         public void onSensorChanged(SensorEvent event) {
             mPressureValue = Float.toString(event.values[0]);
+        }
+    }
+
+    private static final String TAG = "BOOMBOOMTESTGPS";
+    private LocationManager mLocationManager = null;
+    private static final int LOCATION_INTERVAL = 1000;
+    private static final float LOCATION_DISTANCE = 0;
+
+    private class LocationListener implements android.location.LocationListener
+    {
+        Location mLastLocation;
+
+        public LocationListener(String provider)
+        {
+            Log.e(TAG, "LocationListener " + provider);
+            mLastLocation = new Location(provider);
+        }
+
+        @Override
+        public void onLocationChanged(Location location)
+        {
+            Log.e(TAG, "onLocationChanged: " + location);
+            mLastLocation.set(location);
+            mLocationValue = mLastLocation;
+        }
+
+        @Override
+        public void onProviderDisabled(String provider)
+        {
+            Log.e(TAG, "onProviderDisabled: " + provider);
+        }
+
+        @Override
+        public void onProviderEnabled(String provider)
+        {
+            Log.e(TAG, "onProviderEnabled: " + provider);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
+            Log.e(TAG, "onStatusChanged: " + provider);
+        }
+    }
+
+    LocationListener[] mLocationListeners = new LocationListener[] {
+            new LocationListener(LocationManager.GPS_PROVIDER),
+            new LocationListener(LocationManager.NETWORK_PROVIDER)
+    };
+
+    @Override
+    public IBinder onBind(Intent arg0)
+    {
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        Log.d(TAG, "onStartCommand");
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+    private void initializeLocationManager() {
+        Log.e(TAG, "initializeLocationManager");
+        if (mLocationManager == null) {
+            mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         }
     }
 }

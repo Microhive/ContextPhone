@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.estimote.sdk.Beacon;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,7 +51,8 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
 //        List<Marker> markers = ShowFloorMarkers(0);
-        List<Marker> markers = ShowCachedBeacons();
+//        List<Marker> markers = ShowCachedBeacons();
+        List<Marker> markers = MarkClosestBeaconToMe();
 
         for (Marker marker : markers) {
             builder.include(marker.getPosition());
@@ -71,27 +73,13 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
     private List<Marker> ShowFloorMarkers(int floor)
     {
         ArrayList<Marker> markers = new ArrayList<Marker>();
-        switch (floor) {
-            case 0:
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659821, 12.590897)).title("Cafe Analog")));
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659405, 12.590696)).title("ScrollBar")));
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659213, 12.591240)).title("Eatit")));
-                break;
-            case 1:
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.660007, 12.590953)).title("Læsesal")));
-                break;
-            case 2:
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.660017, 12.591497)).title("IT Afdeling")));
-                break;
-            case 3:
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659291, 12.591222)).title("Studievejledning")));
-                break;
-            case 4:
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659751, 12.591445)).title("Auditorium 4")));
-                break;
-            case 5:
-                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659582, 12.591392)).title("Pit Lab")));
-                break;
+        for(Map.Entry<String, BeaconDb.BeaconData> entry : BeaconDb.getInstance().getmMapOfBeaconData().entrySet()) {
+            String key = entry.getKey();
+            BeaconDb.BeaconData value = entry.getValue();
+            if (value.mBeacon.getMajor() == floor)
+            {
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(value.mLocation.getLatitude(), value.mLocation.getLongitude())).title("Floor " + value.mBeacon.getMajor() + ", " + value.mBeacon.getMinor())));
+            }
         }
         return markers;
     }
@@ -114,9 +102,25 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
 
     @Override
     public void onIndoorLevelActivated(IndoorBuilding indoorBuilding) {
-//        int floor = -(indoorBuilding.getActiveLevelIndex() - 5);
-//        Log.d("FLOOR", Integer.toString(floor, -404));
-//        mMap.clear();
-//        ShowFloorMarkers(floor);
+        int floor = -(indoorBuilding.getActiveLevelIndex() - 5);
+        Log.d("FLOOR", Integer.toString(floor, -404));
+        mMap.clear();
+        ShowFloorMarkers(floor);
+    }
+
+    private List<Marker> MarkClosestBeaconToMe()
+    {
+        ArrayList<Marker> markers = new ArrayList<Marker>();
+
+        if (MainActivity.lastSpottedBeacon != null)
+        {
+            String key = MainActivity.lastSpottedBeacon.getProximityUUID() + "," + MainActivity.lastSpottedBeacon.getMajor()+ "," + MainActivity.lastSpottedBeacon.getMinor();
+            BeaconDb.BeaconData entry = BeaconDb.getInstance().getmMapOfBeaconData().get(key);
+            if (entry != null)
+            {
+                markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(entry.mLocation.getLatitude(), entry.mLocation.getLongitude())).title("Closest to: Floor " + entry.mBeacon.getMajor() + ", " + entry.mBeacon.getMinor())));
+            }
+        }
+        return markers;
     }
 }
