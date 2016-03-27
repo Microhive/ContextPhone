@@ -1,8 +1,6 @@
 package dk.itu.ubicomp.android.contextservice;
 
-import android.location.Criteria;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.provider.Settings.Secure;
 import android.Manifest;
 import android.content.Intent;
@@ -34,15 +32,13 @@ import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import dk.itu.ubicomp.android.contextservice.dummy.DummyContent;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorItemFragment.OnListFragmentInteractionListener {
 
     public static BeaconManager beaconManager;
     public static Region region;
@@ -222,6 +218,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 title = getString(R.string.nav_title_privacy);
                 break;
 
+            case R.id.nav_beacon_list:
+                fragment = new SensorItemFragment();
+                title = getString(R.string.nav_title_beacon_list);
+                break;
+
+            case R.id.nav_sensor_list:
+                fragment = new SensorItemFragment();
+                title = getString(R.string.nav_title_sensor_list);
+                break;
+
             case R.id.nav_track_beacons:
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
@@ -267,6 +273,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
     }
 
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
+    }
+
     private class MyLocationListener implements LocationListener {
 
         @Override
@@ -296,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for(Map.Entry<String, BeaconDb.BeaconData> entry : BeaconDb.getInstance().getmMapOfBeaconData().entrySet()) {
             String key = entry.getKey();
             BeaconDb.BeaconData value = entry.getValue();
-
             Uri uri = new Uri.Builder()
                     .scheme("http")
                     .authority("contextphone-1253.appspot.com")
@@ -305,10 +315,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .appendQueryParameter("id", "1")
                     .appendQueryParameter("lat", Double.toString(value.mLocation.getLatitude()))
                     .appendQueryParameter("long", Double.toString(value.mLocation.getLongitude()))
-                    .appendQueryParameter("beacon", "1")
                     .appendQueryParameter("minor", Integer.toString(value.mBeacon.getMinor()))
                     .appendQueryParameter("major", Integer.toString(value.mBeacon.getMajor()))
-                    .appendQueryParameter("androidID", android_id)
                     .appendQueryParameter("uuid", value.mBeacon.getProximityUUID().toString())
                     .build();
 

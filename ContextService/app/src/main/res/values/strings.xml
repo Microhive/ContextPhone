@@ -19,6 +19,8 @@
     <string name="nav_title_track_beacons">Track Beacons</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nav_title_sensor_list">Sensor List</string>
+    <string name="nav_title_beacon_list">Beacon List</string>
 
     <string-array name="Planets">
         <item>Sun</item>

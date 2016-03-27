@@ -12,6 +12,14 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="Privacy"/>
         <item
+            android:id="@+id/nav_sensor_list"
+            android:icon="@drawable/ic_menu_send"
+            android:title="@string/nav_title_sensor_list"/>
+        <item
+            android:id="@+id/nav_beacon_list"
+            android:icon="@drawable/ic_menu_send"
+            android:title="@string/nav_title_beacon_list"/>
+        <item
             android:id="@+id/nav_track_beacons"
             android:icon="@drawable/ic_menu_send"
             android:title="@string/nav_title_track_beacons"/>
