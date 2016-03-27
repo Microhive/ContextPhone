@@ -1,5 +1,6 @@
 package dk.itu.ubicomp.android.contextservice;
 
+import android.location.Criteria;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.Settings.Secure;
@@ -9,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -102,6 +102,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.d("LOCATION", currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
                     for (Beacon beacon : list) {
                         if (!BeaconDb.getInstance().getmMapOfBeaconData().containsKey(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor())) {
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+//                            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             BeaconDb.getInstance().AddItem(beacon.getProximityUUID() + "," + beacon.getMajor() + "," + beacon.getMinor(), beacon, currentLocation);
                         }
                     }
@@ -122,22 +126,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case REQUEST_CODE_ASK_PERMISSIONS: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                        //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
-                    }
-
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, locationListener);
+//                    currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
                 break;
             }
@@ -151,15 +143,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("displayfragmentview"))
-        {
+        if (intent != null && intent.hasExtra("displayfragmentview")) {
             int startView = getIntent().getIntExtra("displayfragmentview", R.id.nav_privacy);
             DisplayFragmentView(startView);
             Log.d("ACTIVITY", "RESUMED!");
@@ -176,7 +166,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onPause() {
         beaconManager.stopRanging(region);
-
         super.onPause();
     }
 
@@ -236,9 +225,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 title = getString(R.string.nav_title_privacy);
                 break;
 
-            case R.id.nav_nearby_beacons:
-                fragment = new NearbyBeacons();
-                title = getString(R.string.nav_title_nearby_beacons);
+            case R.id.nav_track_beacons:
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                locationManager.removeUpdates(locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
                 break;
 
             case R.id.nav_send_beacons:
@@ -277,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
     }
 
-    private final class MyLocationListener implements LocationListener {
+    private class MyLocationListener implements LocationListener {
 
         @Override
         public void onLocationChanged(Location locFromGps) {

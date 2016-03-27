@@ -49,18 +49,21 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        List<Marker> markers = ShowFloorMarkers(0);
+//        List<Marker> markers = ShowFloorMarkers(0);
+        List<Marker> markers = ShowCachedBeacons();
 
         for (Marker marker : markers) {
             builder.include(marker.getPosition());
         }
 
-        LatLngBounds bounds = builder.build();
+        if (markers.size() > 0)
+        {
+            LatLngBounds bounds = builder.build();
 
-        int padding = 200;
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-
-        googleMap.moveCamera(cu);
+            int padding = 200;
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            googleMap.moveCamera(cu);
+        }
 
         mMap.setOnIndoorStateChangeListener(this);
     }
@@ -90,11 +93,17 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
                 markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(55.659582, 12.591392)).title("Pit Lab")));
                 break;
         }
+        return markers;
+    }
 
-        //TODO: Thinking maybe it should actually fade the surrounding areas around ITU
-        // PolygonOptions options = new PolygonOptions();
-        // PolygonOptions addHole
-
+    private List<Marker> ShowCachedBeacons()
+    {
+        ArrayList<Marker> markers = new ArrayList<Marker>();
+        for(Map.Entry<String, BeaconDb.BeaconData> entry : BeaconDb.getInstance().getmMapOfBeaconData().entrySet()) {
+            String key = entry.getKey();
+            BeaconDb.BeaconData value = entry.getValue();
+            markers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(value.mLocation.getLatitude(), value.mLocation.getLongitude())).title("Floor " + value.mBeacon.getMajor() + ", " + value.mBeacon.getMinor())));
+        }
         return markers;
     }
 
@@ -105,9 +114,9 @@ public class MyLocation extends Fragment implements OnMapReadyCallback, GoogleMa
 
     @Override
     public void onIndoorLevelActivated(IndoorBuilding indoorBuilding) {
-        int floor = -(indoorBuilding.getActiveLevelIndex() - 5);
-        Log.d("FLOOR", Integer.toString(floor, -404));
-        mMap.clear();
-        ShowFloorMarkers(floor);
+//        int floor = -(indoorBuilding.getActiveLevelIndex() - 5);
+//        Log.d("FLOOR", Integer.toString(floor, -404));
+//        mMap.clear();
+//        ShowFloorMarkers(floor);
     }
 }

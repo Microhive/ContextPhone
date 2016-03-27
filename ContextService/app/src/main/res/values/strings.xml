@@ -16,7 +16,7 @@
     <string name="nav_title_my_location">My Location</string>
     <string name="nav_title_privacy">Privacy</string>
     <string name="nav_title_my_beacons">My Beacons</string>
-    <string name="nav_title_nearby_beacons">Nearby Beacons</string>
+    <string name="nav_title_track_beacons">Track Beacons</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
