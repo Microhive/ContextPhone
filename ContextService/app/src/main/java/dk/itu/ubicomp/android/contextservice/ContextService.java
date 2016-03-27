@@ -15,12 +15,16 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.*;
 import android.os.Process;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,9 +44,10 @@ public class ContextService extends Service {
     private LocationManager locationManager;
     private Location mLocationValue;
 
-    public static final long NOTIFY_INTERVAL = 1000; // 1 seconds
+    public static final long NOTIFY_INTERVAL = 60000; // 60 seconds
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
+    private String android_id = null;
 
     @Override
     public void onCreate() {
@@ -53,6 +58,8 @@ public class ContextService extends Service {
         SetupLocation();
         showNotification();
         startTrackingSensorInfo();
+
+        android_id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
     private void startTrackingSensorInfo() {
@@ -83,6 +90,13 @@ public class ContextService extends Service {
         Log.d("SENSOR VALUES", mLocationValue != null ? mLocationValue.getLatitude() + ", " + mLocationValue.getLongitude() : "NULL");
         Log.d("SENSOR VALUES", mPressureValue != null ? mPressureValue : "NULL");
         Log.d("SENSOR VALUES", mRotationValue != null ? mRotationValue : "NULL");
+
+        if (mLocationValue != null && mPressureValue != null && mRotationValue != null)
+        {
+            SendSensor("LOCATION", mLocationValue != null ? mLocationValue.getLatitude() + ", " + mLocationValue.getLongitude() : "NOT_PROVIDED");
+            SendSensor("PRESSURE", mPressureValue != null ? mPressureValue : "NOT_PROVIDED");
+            SendSensor("ROTATION", mRotationValue != null ? mRotationValue : "NOT_PROVIDED");
+        }
     }
 
     @Override
@@ -93,13 +107,6 @@ public class ContextService extends Service {
             for (int i = 0; i < mLocationListeners.length; i++) {
                 try {
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
                     mLocationManager.removeUpdates(mLocationListeners[i]);
@@ -253,5 +260,23 @@ public class ContextService extends Service {
         if (mLocationManager == null) {
             mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         }
+    }
+
+    private void SendSensor(String sensortype, String Value) {
+
+        Uri uri = new Uri.Builder()
+                .scheme("http")
+                .authority("contextphone-1253.appspot.com")
+                .path("")
+                .appendQueryParameter("entype", "2")
+                .appendQueryParameter("id", "1")
+                .appendQueryParameter("sensortype", sensortype)
+                .appendQueryParameter("value", Value)
+                .appendQueryParameter("timestamp", new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()).toString())
+                .appendQueryParameter("androidID", android_id)
+                .build();
+
+        Log.d("HTTP REQUEST", uri.toString());
+        new SendRequestByURL().execute(uri.toString());
     }
 }

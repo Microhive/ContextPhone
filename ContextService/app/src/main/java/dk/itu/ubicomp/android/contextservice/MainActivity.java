@@ -111,10 +111,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     }
                     if (list.size() > 0)
+                    {
                         lastSpottedBeacon = list.get(0);
+                    }
                 }
-
-                Log.d("Beacons that exist!", Integer.toString(BeaconDb.getInstance().getmMapOfBeaconData().size(), 0));
+                Log.d("BEACONS #", Integer.toString(BeaconDb.getInstance().getmMapOfBeaconData().size(), 0));
             }
         });
 
@@ -183,19 +184,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -338,43 +333,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Log.d("HTTP REQUEST", uri.toString());
         new SendRequestByURL().execute(uri.toString());
-    }
-
-    class SendRequestByURL extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                // http client
-                URL url = new URL(params[0]);
-                HttpURLConnection httpClient = (HttpURLConnection) url.openConnection();
-                httpClient.setRequestMethod("POST");
-                httpClient.setUseCaches(false);
-                httpClient.setDoInput(true);
-                httpClient.setDoOutput(true);
-                httpClient.setRequestProperty("Connection", "Keep-Alive");
-
-                OutputStream os = httpClient.getOutputStream();
-                os.close();
-                httpClient.connect();
-
-                if (httpClient.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
-                }
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            // execution of result of Long time consuming operation
-            Toast.makeText(getApplicationContext(), "SENSOR DATA SENT FOR " + android_id + "!", Toast.LENGTH_SHORT).show();
-        }
     }
 }
