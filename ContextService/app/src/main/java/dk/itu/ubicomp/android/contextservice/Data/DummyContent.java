@@ -1,5 +1,6 @@
-package dk.itu.ubicomp.android.contextservice.dummy;
+package dk.itu.ubicomp.android.contextservice.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ public class DummyContent {
     /**
      * A dummy item representing a piece of content.
      */
-    public static class DummyItem {
+    public static class DummyItem implements Serializable {
         public final String id;
         public final String content;
         public final String details;

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import dk.itu.ubicomp.android.contextservice.SensorItemFragment.OnListFragmentInteractionListener;
-import dk.itu.ubicomp.android.contextservice.dummy.DummyContent.DummyItem;
+import dk.itu.ubicomp.android.contextservice.Data.DummyContent.DummyItem;
 
 import java.util.List;
 

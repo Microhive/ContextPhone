@@ -36,7 +36,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import dk.itu.ubicomp.android.contextservice.dummy.DummyContent;
+import dk.itu.ubicomp.android.contextservice.Data.DummyContent;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorItemFragment.OnListFragmentInteractionListener {
 
@@ -275,7 +275,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
-
+        Log.e("PRINTING", item.id + ":" + item.details);
+        Intent intent = new Intent(this, CRUDSensorActivity.class);
+        intent.putExtra("ITEM", item);
+        startActivity(intent);
     }
 
     private class MyLocationListener implements LocationListener {

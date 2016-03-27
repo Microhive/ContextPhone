@@ -10,10 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import dk.itu.ubicomp.android.contextservice.dummy.DummyContent;
-import dk.itu.ubicomp.android.contextservice.dummy.DummyContent.DummyItem;
-
-import java.util.List;
+import dk.itu.ubicomp.android.contextservice.Data.DummyContent;
+import dk.itu.ubicomp.android.contextservice.Data.DummyContent.DummyItem;
 
 /**
  * A fragment representing a list of Items.
