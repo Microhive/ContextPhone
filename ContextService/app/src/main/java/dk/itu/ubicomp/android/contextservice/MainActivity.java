@@ -9,13 +9,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -36,7 +33,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import dk.itu.ubicomp.android.contextservice.Data.DummyContent;
+import dk.itu.ubicomp.android.contextservice.Data.SensorData;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorItemFragment.OnListFragmentInteractionListener {
 
@@ -274,8 +271,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        Log.e("PRINTING", item.id + ":" + item.details);
+    public void onListFragmentInteraction(SensorData item) {
+        Log.e("PRINTING", item.id + ":" + item.sensortype + ", " + item.value);
         Intent intent = new Intent(this, CRUDSensorActivity.class);
         intent.putExtra("ITEM", item);
         startActivity(intent);
@@ -312,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             BeaconDb.BeaconData value = entry.getValue();
             Uri uri = new Uri.Builder()
                     .scheme("http")
-                    .authority("contextphone-1253.appspot.com")
+                    .authority(ContextService.AUTHORITY)
                     .path("")
                     .appendQueryParameter("entype", "1")
                     .appendQueryParameter("id", "1")
@@ -332,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Uri uri = new Uri.Builder()
                 .scheme("http")
-                .authority("contextphone-1253.appspot.com")
+                .authority(ContextService.AUTHORITY)
                 .path("")
                 .appendQueryParameter("entype", "2")
                 .appendQueryParameter("id", "1")

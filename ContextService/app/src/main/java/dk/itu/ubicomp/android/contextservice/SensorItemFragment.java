@@ -1,17 +1,33 @@
 package dk.itu.ubicomp.android.contextservice;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import dk.itu.ubicomp.android.contextservice.Data.DummyContent;
-import dk.itu.ubicomp.android.contextservice.Data.DummyContent.DummyItem;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import dk.itu.ubicomp.android.contextservice.Data.SensorData;
 
 /**
  * A fragment representing a list of Items.
@@ -21,9 +37,10 @@ import dk.itu.ubicomp.android.contextservice.Data.DummyContent.DummyItem;
  */
 public class SensorItemFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
+    private MySensorItemRecyclerViewAdapter adapter = null;
+    private List<SensorData> SensorData;
+
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
@@ -34,7 +51,6 @@ public class SensorItemFragment extends Fragment {
     public SensorItemFragment() {
     }
 
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
     public static SensorItemFragment newInstance(int columnCount) {
         SensorItemFragment fragment = new SensorItemFragment();
@@ -67,11 +83,11 @@ public class SensorItemFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MySensorItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            adapter = new MySensorItemRecyclerViewAdapter(new ArrayList<SensorData>(), mListener);
+            recyclerView.setAdapter(adapter);
         }
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -101,7 +117,6 @@ public class SensorItemFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(SensorData item);
     }
 }

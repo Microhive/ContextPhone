@@ -2,7 +2,6 @@ package dk.itu.ubicomp.android.contextservice;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,20 +16,18 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Calendar;
 
-import dk.itu.ubicomp.android.contextservice.Data.DummyContent.DummyItem;
 import dk.itu.ubicomp.android.contextservice.Data.SensorData;
 
 public class CRUDSensorActivity extends AppCompatActivity {
 
-    private DummyItem mItem;
+    private SensorData sensorData;
+    private TextView mTextViewTimestamp;
+    private TextView mTextViewType;
     private TextView mTextViewValue;
     private Button buttonDelete;
     private Button buttonSave;
     private String android_id = null;
-
-    public SensorData sensorData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +42,13 @@ public class CRUDSensorActivity extends AppCompatActivity {
         }
 
         // To retrieve object in second Activity
-        mItem = (DummyItem)getIntent().getSerializableExtra("ITEM");
+        sensorData = (SensorData)getIntent().getSerializableExtra("ITEM");
         mTextViewValue = (TextView) findViewById(R.id.editTextValue);
-        mTextViewValue.setText(mItem.id);
-
-        sensorData = new SensorData("1", "1","1","1","1","1");
+        mTextViewValue.setText(sensorData.value);
+        mTextViewTimestamp = (TextView) findViewById(R.id.editTextTimestamp);
+        mTextViewTimestamp.setText(sensorData.timestamp);
+        mTextViewType = (TextView) findViewById(R.id.editTextType);
+        mTextViewType.setText(sensorData.sensortype);
 
         SetupButtons();
     }
@@ -64,14 +63,10 @@ public class CRUDSensorActivity extends AppCompatActivity {
 
                 Uri uri = new Uri.Builder()
                         .scheme("http")
-                        .authority("contextphone-1253.appspot.com")
+                        .authority(ContextService.AUTHORITY)
                         .path("")
-                        .appendQueryParameter("entype", sensorData.entype)
-                        .appendQueryParameter("id", sensorData.id)
-                        .appendQueryParameter("sensortype", sensorData.sensortype)
-                        .appendQueryParameter("value", sensorData.value)
-                        .appendQueryParameter("timestamp", sensorData.timestamp)
-                        .appendQueryParameter("androidID", sensorData.androidID)
+                        .appendQueryParameter("EntityID", sensorData.id)
+                        .appendQueryParameter("del", "sensor")
                         .build();
 
                 Log.d("HTTP REQUEST", uri.toString());
@@ -88,14 +83,12 @@ public class CRUDSensorActivity extends AppCompatActivity {
 
                 Uri uri = new Uri.Builder()
                         .scheme("http")
-                        .authority("contextphone-1253.appspot.com")
+                        .authority(ContextService.AUTHORITY)
                         .path("")
-                        .appendQueryParameter("entype", sensorData.entype)
                         .appendQueryParameter("id", sensorData.id)
                         .appendQueryParameter("sensortype", sensorData.sensortype)
                         .appendQueryParameter("value", sensorData.value)
                         .appendQueryParameter("timestamp", sensorData.timestamp)
-                        .appendQueryParameter("androidID", sensorData.androidID)
                         .build();
 
                 Log.d("HTTP REQUEST", uri.toString());

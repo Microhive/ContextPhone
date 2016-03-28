@@ -49,6 +49,8 @@ public class ContextService extends Service {
     private Timer mTimer = null;
     private String android_id = null;
 
+    public final static String AUTHORITY =  "contextphone-v1.appspot.com";
+
     @Override
     public void onCreate() {
         HandlerThread thread = new HandlerThread("ServiceStartArguments", Process.THREAD_PRIORITY_BACKGROUND);
@@ -263,10 +265,9 @@ public class ContextService extends Service {
     }
 
     private void SendSensor(String sensortype, String Value) {
-
         Uri uri = new Uri.Builder()
                 .scheme("http")
-                .authority("contextphone-1253.appspot.com")
+                .authority(AUTHORITY)
                 .path("")
                 .appendQueryParameter("entype", "2")
                 .appendQueryParameter("id", "1")
