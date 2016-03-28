@@ -30,7 +30,7 @@ public class CRUDSensorActivity extends AppCompatActivity {
     private Button buttonSave;
     private String android_id = null;
 
-    public SensorData sensorData = new SensorData();
+    public SensorData sensorData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,8 @@ public class CRUDSensorActivity extends AppCompatActivity {
         mItem = (DummyItem)getIntent().getSerializableExtra("ITEM");
         mTextViewValue = (TextView) findViewById(R.id.editTextValue);
         mTextViewValue.setText(mItem.id);
+
+        sensorData = new SensorData("1", "1","1","1","1","1");
 
         SetupButtons();
     }
