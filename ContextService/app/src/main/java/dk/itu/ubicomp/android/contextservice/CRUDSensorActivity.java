@@ -84,11 +84,10 @@ public class CRUDSensorActivity extends AppCompatActivity {
                 Uri uri = new Uri.Builder()
                         .scheme("http")
                         .authority(ContextService.AUTHORITY)
-                        .path("")
-                        .appendQueryParameter("id", sensorData.id)
+                        .path("update.php")
+                        .appendQueryParameter("keyid", sensorData.id)
                         .appendQueryParameter("sensortype", sensorData.sensortype)
                         .appendQueryParameter("value", sensorData.value)
-                        .appendQueryParameter("timestamp", sensorData.timestamp)
                         .build();
 
                 Log.d("HTTP REQUEST", uri.toString());
